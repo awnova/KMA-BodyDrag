@@ -11,29 +11,27 @@ It's the same pickup, arm pose and hold that KeepMeAlive uses to drag a downed t
 **Picking up a body**  
 Look at a corpse and hold **Interact** (**F** by default) for a second. You grab it with both hands. A quick tap still opens the loot screen like normal. If a body is still falling, you can only loot it.
 
-**Dragging**  
-Walk backwards crouched and the body follows. Stay close to it, because if you get too far away you let go.
-
-**Putting it down**  
-Stand up, go prone, take anything but your sidearm in your hands, or turn away to drop it. Pressing **Interact** drops it too, by default. The body goes limp, settles where it lands, and stays there.
+![Dragging a body](https://github.com/awnova/KMA-BodyDrag/releases/download/v1.0.0/KMA-Drag-Drag.Forge.webp)
 
 **Sidearm**  
-Your sidearm only needs your right hand, so you can draw it while you drag and keep hold of the body with your left. A primary weapon, a grenade, a knife or meds make you let go.
+Your sidearm only needs your right hand, so you can draw it while you drag and keep hold of the body with your left. A primary weapon, a grenade, a knife using meds or reloading make you let go.
 
-**Any body**  
-Scavs, PMCs, bosses and zombies can all be dragged.
+![Dragging a body with your sidearm out](https://github.com/awnova/KMA-BodyDrag/releases/download/v1.0.0/KMA-Drag-SideArm.Forge.webp)
 
+**Looting while dragging**  
+Press your inventory key while you're holding a body and its loot screen opens, with the body still in your hands.
+
+![Looting a body, then putting it down](https://github.com/awnova/KMA-BodyDrag/releases/download/v1.0.0/KMA-Drag-LootDrop.Forge.webp)
+
+**Putting it down**  
+Stand up, go prone, take anything but your sidearm in your hands, or turn away to drop it. Pressing **Interact** drops it too.
 **Co-op**  
-Your teammates see the pickup, your arms and the drag. Only one player can hold a body at a time. If someone is looting it when you grab it, their loot screen closes. When you drop it, it ends up in the same pose on everyone's screen.
-
-**With KeepMeAlive**  
-If you're running KeepMeAlive, going down, starting a revive, using the heal wheel or extracting makes you drop the body automatically.
+Your teammates see the pickup, your arms and the drag. Only one player can hold a body at a time. If someone is looting it when you grab it, their loot screen closes.
 
 ### Features
 
 * **Choose how you pick bodies up:** Hold Interact, or press it twice.
 * **Add a modifier key:** Require Shift, Alt or Control with Interact, so plain Interact stays exactly like the base game.
-* **Set the hold time:** Choose how long you hold Interact to grab a body.
 * **Choose whether Interact drops the body:** Or only let go by standing, going prone, taking anything but your sidearm in your hands or turning away.
 * **Play solo or co-op:** Fika isn't required.
 * **Translate it:** On-screen text is localized, and you can add your own languages.
@@ -57,7 +55,6 @@ To add a language, place a `<code>.json` file in `BepInEx/plugins/KeepMeAlive/Lo
 * **KeepMeAlive:** Works with the Solo and Fika versions. You can run either, or neither.
 * **Fika:** Optional. Without it this is a single-player mod. With it, everyone in the raid needs KMA Body Drag.
 * **Rupture and Euphoria Style Physics:** Both change how corpses behave, so this mod borrows the body from them while you're holding it and hands it back when you let go.
-* **Bring Me To Life (kobethuy):** Both mods use the Interact key on bodies. Pick one to run.
 
 ### Installation
 
@@ -69,9 +66,9 @@ To add a language, place a `<code>.json` file in `BepInEx/plugins/KeepMeAlive/Lo
 
 ### Credits
 
-* Pickup, arm pose and hold: ported from **KeepMeAlive**
-* Original revival mod: **KaikiNoodles**
-* Bring Me To Life: **kobethuy**
+* Insperation to make it: **kobethuy**
+* Integration with Rupture: **darkarchon**
+* Integration with Euphoria: **amos**
 
 ### Support Me
 
