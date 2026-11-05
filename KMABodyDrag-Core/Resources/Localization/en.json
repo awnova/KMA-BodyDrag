@@ -1,0 +1,15 @@
+{
+  "_comment": "KMA Body Drag English text. To translate: copy this file to BepInEx/plugins/KMABodyDrag/Localizations/<code>.json (EFT language code: ru, ge, fr, es, es-mx, it, pl, po, cz, sk, hu, ro, tu, jp, kr, ch), translate the values and keep the keys and {0} placeholders. Missing keys fall back to English. Keys starting with _ are ignored.",
+
+  "Hud.Loot": "Loot",
+  "Hud.Drag": "Drag",
+  "Hud.Double": "Double",
+  "Hud.Hold": "Hold",
+  "Hud.Grabbing": "Grabbing body",
+  "Hud.Drop": "Drop",
+
+  "Interaction.DragAction": "Drag",
+  "Interaction.BodyDragHint": "Dragging body - stand up, draw a weapon or turn away to let go",
+  "Interaction.BodyDragHintInteract": "Dragging body - press {0}, stand up, draw a weapon or turn away to let go",
+  "Interaction.BodyDragReleased": "Released body"
+}

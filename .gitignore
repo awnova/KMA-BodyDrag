@@ -1,0 +1,18 @@
+# Build outputs
+KMABodyDrag-Core/bin/
+KMABodyDrag-Core/obj/
+
+# IDE files
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+.idea/
+
+# Build configuration and scripts with local paths - DO NOT COMMIT
+build-config.json
+Build/
+
+# Tools
+__pycache__/

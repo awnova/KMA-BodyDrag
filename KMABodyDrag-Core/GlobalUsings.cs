@@ -1,0 +1,11 @@
+global using KMABodyDrag.Animation.Hands;
+global using KMABodyDrag.Animation.Shared;
+global using KMABodyDrag.Configuration;
+global using KMABodyDrag.Corpses;
+global using KMABodyDrag.Dragging;
+global using KMABodyDrag.Interaction;
+global using KMABodyDrag.Interop;
+global using KMABodyDrag.Networking;
+global using KMABodyDrag.Patches;
+global using KMABodyDrag.Presentation;
+global using KMABodyDrag.Utilities;

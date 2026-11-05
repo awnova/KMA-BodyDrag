@@ -1,0 +1,111 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>KMABodyDrag</AssemblyName>
+    <RootNamespace>KMABodyDrag</RootNamespace>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Deterministic>true</Deterministic>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <SPTBaseDir Condition=" '$(SPTBaseDir)' == '' ">C:\SPT</SPTBaseDir>
+    <ManagedDir>$(SPTBaseDir)\EscapeFromTarkov_Data\Managed\</ManagedDir>
+  </PropertyGroup>
+
+  <!-- Everything the mod loads at runtime, embedded in the DLL. Manifest name: KMABodyDrag.Resources.<sub.folders.>file. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\**\*.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony" HintPath="$(SPTBaseDir)\BepInEx\core\0Harmony.dll" Private="false" />
+    <Reference Include="BepInEx" HintPath="$(SPTBaseDir)\BepInEx\core\BepInEx.dll" Private="false" />
+    <Reference Include="spt-reflection" HintPath="$(SPTBaseDir)\BepInEx\plugins\spt\spt-reflection.dll" Private="false" />
+    <Reference Include="Fika.Core" HintPath="$(SPTBaseDir)\BepInEx\plugins\Fika\Fika.Core.dll" Private="false" />
+    <Reference Include="Assembly-CSharp" HintPath="$(ManagedDir)Assembly-CSharp.dll" Private="false" />
+    <Reference Include="Comfort" HintPath="$(ManagedDir)Comfort.dll" Private="false" />
+    <Reference Include="Comfort.Unity" HintPath="$(ManagedDir)Comfort.Unity.dll" Private="false" />
+    <Reference Include="CommonExtensions" HintPath="$(ManagedDir)CommonExtensions.dll" Private="false" />
+    <Reference Include="ItemComponent.Types" HintPath="$(ManagedDir)ItemComponent.Types.dll" Private="false" />
+    <Reference Include="ItemTemplate.Types" HintPath="$(ManagedDir)ItemTemplate.Types.dll" Private="false" />
+    <Reference Include="Newtonsoft.Json" HintPath="$(ManagedDir)Newtonsoft.Json.dll" Private="false" />
+    <Reference Include="Sirenix.Serialization" HintPath="$(ManagedDir)Sirenix.Serialization.dll" Private="false" />
+    <Reference Include="Unity.TextMeshPro" HintPath="$(ManagedDir)Unity.TextMeshPro.dll" Private="false" />
+    <Reference Include="UnityEngine" HintPath="$(ManagedDir)UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.AnimationModule" HintPath="$(ManagedDir)UnityEngine.AnimationModule.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(ManagedDir)UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(ManagedDir)UnityEngine.InputLegacyModule.dll" Private="false" />
+    <Reference Include="UnityEngine.PhysicsModule" HintPath="$(ManagedDir)UnityEngine.PhysicsModule.dll" Private="false" />
+    <Reference Include="UnityEngine.TextRenderingModule" HintPath="$(ManagedDir)UnityEngine.TextRenderingModule.dll" Private="false" />
+    <Reference Include="UnityEngine.UI" HintPath="$(ManagedDir)UnityEngine.UI.dll" Private="false" />
+    <Reference Include="UnityEngine.UIModule" HintPath="$(ManagedDir)UnityEngine.UIModule.dll" Private="false" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <BuildPluginDir>$(MSBuildProjectDirectory)\..\Build\KMABodyDrag\BepInEx\plugins\KeepMeAlive</BuildPluginDir>
+    <RuntimePluginDir>$(SPTBaseDir)\BepInEx\plugins\KeepMeAlive</RuntimePluginDir>
+  </PropertyGroup>
+
+  <!-- Fails the build (so nothing is deployed) when the built DLL is missing an embedded resource: a stale obj/ DLL from a
+       partial build (-t:Compile) has none, and the muscle pose and hold grip then silently vanish in game. Also warns about a
+       file in Resources that is not embedded (an extension the item above does not take). -->
+  <UsingTask TaskName="KMABodyDrag_CheckManifestResources" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Assembly ParameterType="System.String" Required="true" />
+      <Expected ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        // A manifest resource's name is in the metadata string heap as UTF-8 (C# string literals are UTF-16, so they do not
+        // match), and its bytes are in the file: every name must be there, and the file must be at least as big as them all.
+        byte[] dll = File.ReadAllBytes(Assembly);
+        long total = 0;
+        int missing = 0;
+        foreach (var item in Expected)
+        {
+            total += new FileInfo(item.GetMetadata("FullPath")).Length;
+            string name = item.GetMetadata("ManifestResourceName");
+            byte[] needle = Encoding.UTF8.GetBytes(name + "\0");
+            bool found = false;
+            for (int i = 0; !found && i <= dll.Length - needle.Length; i++)
+            {
+                if (dll[i] != needle[0]) continue;
+                int j = 1;
+                while (j < needle.Length && dll[i + j] == needle[j]) j++;
+                found = j == needle.Length;
+            }
+            if (!found)
+            {
+                missing++;
+                Log.LogError("KMABodyDrag.dll is missing embedded resource " + name + " (stale obj/? delete obj/ and bin/ and rebuild)");
+            }
+        }
+        if (missing == 0 && dll.Length < total)
+            Log.LogError("KMABodyDrag.dll (" + dll.Length + " bytes) is smaller than its embedded resources (" + total + " bytes): stale obj/? delete obj/ and bin/ and rebuild");
+        else if (missing == 0)
+            Log.LogMessage(MessageImportance.High, "KMABodyDrag.dll: all " + Expected.Length + " embedded resources present (" + dll.Length / 1024 + " KB)");
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="VerifyEmbeddedResources" AfterTargets="Build">
+    <ItemGroup>
+      <_DragResourceFile Include="Resources\**\*" Exclude="@(EmbeddedResource)" />
+    </ItemGroup>
+    <Warning Condition=" '@(_DragResourceFile)' != '' " Text="Not embedded (unhandled extension): @(_DragResourceFile)" />
+    <KMABodyDrag_CheckManifestResources Assembly="$(TargetPath)" Expected="@(EmbeddedResource)" />
+  </Target>
+
+  <!-- The DLL in the shared plugins/KeepMeAlive/. Localizations/ there is shared by every KMA mod and owned by KeepMeAlive. -->
+  <Target Name="DeployPlugin" AfterTargets="Build" DependsOnTargets="VerifyEmbeddedResources">
+    <MakeDir Directories="$(BuildPluginDir)" />
+    <MakeDir Directories="$(RuntimePluginDir)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(BuildPluginDir)" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(RuntimePluginDir)" SkipUnchangedFiles="false" />
+    <!-- Old layouts: left behind, BepInEx would load the mod twice. -->
+    <Delete Files="$(SPTBaseDir)\BepInEx\plugins\KMABodyDrag.dll;$(SPTBaseDir)\BepInEx\plugins\KMABodyDrag\KMABodyDrag.dll;$(SPTBaseDir)\BepInEx\plugins\KMABodyDrag\Localizations\en.json" ContinueOnError="true" />
+  </Target>
+</Project>
