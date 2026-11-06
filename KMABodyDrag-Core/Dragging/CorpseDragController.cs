@@ -80,6 +80,8 @@ namespace KMABodyDrag.Dragging
             if (dragger == null || !dragger.IsYourPlayer || !PlayerUtils.IsAlive(dragger)) return false;
             if (IsLocalDragging || FikaBridge.IsHeadless()) return false;
             if (KmaInterop.BusyReason() != null) return false;
+            // Ammo Loading Animations has the hands (its controller would read as a weapon taken, and its put-away re-equips one).
+            if (LoadAmmoAnimInterop.IsAnimating()) return false;
             if (!CorpseRegistry.IsReady(entry) || CorpseClaims.IsHeld(entry.Id)) return false;
             // Dragging is done crouched; going prone is one of the ways to let go.
             if (dragger.MovementContext == null || dragger.MovementContext.IsInPronePose) return false;

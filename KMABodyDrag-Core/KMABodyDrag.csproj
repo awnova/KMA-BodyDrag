@@ -22,7 +22,6 @@
     <Reference Include="0Harmony" HintPath="$(SPTBaseDir)\BepInEx\core\0Harmony.dll" Private="false" />
     <Reference Include="BepInEx" HintPath="$(SPTBaseDir)\BepInEx\core\BepInEx.dll" Private="false" />
     <Reference Include="spt-reflection" HintPath="$(SPTBaseDir)\BepInEx\plugins\spt\spt-reflection.dll" Private="false" />
-    <Reference Include="Fika.Core" HintPath="$(SPTBaseDir)\BepInEx\plugins\Fika\Fika.Core.dll" Private="false" />
     <Reference Include="Assembly-CSharp" HintPath="$(ManagedDir)Assembly-CSharp.dll" Private="false" />
     <Reference Include="Comfort" HintPath="$(ManagedDir)Comfort.dll" Private="false" />
     <Reference Include="Comfort.Unity" HintPath="$(ManagedDir)Comfort.Unity.dll" Private="false" />
@@ -40,6 +39,15 @@
     <Reference Include="UnityEngine.TextRenderingModule" HintPath="$(ManagedDir)UnityEngine.TextRenderingModule.dll" Private="false" />
     <Reference Include="UnityEngine.UI" HintPath="$(ManagedDir)UnityEngine.UI.dll" Private="false" />
     <Reference Include="UnityEngine.UIModule" HintPath="$(ManagedDir)UnityEngine.UIModule.dll" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Everything that names a Fika type is the KMABodyDrag.Fika assembly, embedded here and served from the resource only when
+         Fika is installed (FikaBridge.Init). This project must not reference Fika.Core: one type here that cannot load without
+         Fika breaks every mod that lists this assembly's types (WTT-ClientCommonLib registered no custom items, so with Ammo
+         Loading Animations the game stopped at /client/items). It compiles against the Fika assembly, which only FikaLink calls. -->
+    <ProjectReference Include="..\KMABodyDrag-Fika\KMABodyDrag.Fika.csproj" Private="false" />
+    <EmbeddedResource Include="..\KMABodyDrag-Fika\bin\$(Configuration)\KMABodyDrag.Fika.dll" LogicalName="KMABodyDrag.Fika.dll" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -67,7 +75,8 @@
         foreach (var item in Expected)
         {
             total += new FileInfo(item.GetMetadata("FullPath")).Length;
-            string name = item.GetMetadata("ManifestResourceName");
+            string name = item.GetMetadata("LogicalName");
+            if (string.IsNullOrEmpty(name)) name = item.GetMetadata("ManifestResourceName");
             byte[] needle = Encoding.UTF8.GetBytes(name + "\0");
             bool found = false;
             for (int i = 0; !found && i <= dll.Length - needle.Length; i++)
@@ -106,6 +115,6 @@
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(BuildPluginDir)" SkipUnchangedFiles="false" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(RuntimePluginDir)" SkipUnchangedFiles="false" />
     <!-- Old layouts: left behind, BepInEx would load the mod twice. -->
-    <Delete Files="$(SPTBaseDir)\BepInEx\plugins\KMABodyDrag.dll;$(SPTBaseDir)\BepInEx\plugins\KMABodyDrag\KMABodyDrag.dll;$(SPTBaseDir)\BepInEx\plugins\KMABodyDrag\Localizations\en.json" ContinueOnError="true" />
+    <Delete Files="$(SPTBaseDir)\BepInEx\plugins\KMABodyDrag.dll;$(SPTBaseDir)\BepInEx\plugins\KMABodyDrag\KMABodyDrag.dll;$(SPTBaseDir)\BepInEx\plugins\KMABodyDrag\Localizations\en.json;$(RuntimePluginDir)\KMABodyDrag.Fika.dll;$(BuildPluginDir)\KMABodyDrag.Fika.dll" ContinueOnError="true" />
   </Target>
 </Project>

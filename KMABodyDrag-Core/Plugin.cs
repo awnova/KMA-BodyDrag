@@ -1,7 +1,6 @@
 //====================[ Imports ]====================
 using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using BepInEx;
 using BepInEx.Logging;
 
@@ -18,7 +17,8 @@ namespace KMABodyDrag
     [BepInDependency(KMABodyDrag.Interop.KmaInterop.FikaGuid, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("com.rootdarkarchon.rupture", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency("amos.euphoriastylephysics", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInPlugin(Plugin.PluginGuid, "KMA Body Drag", "0.1.0")]
+    [BepInDependency("com.manimal.loadammoanim", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInPlugin(Plugin.PluginGuid, "KMA Body Drag", "1.0.1")]
     public class Plugin : BaseUnityPlugin
     {
         //====================[ Identity ]====================
@@ -39,21 +39,17 @@ namespace KMABodyDrag
             KmaInterop.Init();
             RuptureInterop.Init();
             EuphoriaInterop.Init();
+            LoadAmmoAnimInterop.Init();
 
             EnablePatches();
 
-            if (FikaBridge.Present) InitFika();
-            else EnableSoloPatches();
+            // With Fika its raid events (FikaNet, loaded from the embedded Fika assembly) mark the raid boundaries; without it, or
+            // if that assembly cannot be bound, the single-player patches do.
+            FikaBridge.Init();
+            if (!FikaBridge.Bound) EnableSoloPatches();
         }
 
-        //====================[ Fika / Solo ]====================
-        // Its own method, so Awake's compiled code names no Fika type: without Fika it is never compiled.
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private static void InitFika()
-        {
-            FikaRaidLifecycle.Init();
-        }
-
+        //====================[ Solo ]====================
         private static void EnableSoloPatches()
         {
             new SoloRaidStartedPatch().Enable();

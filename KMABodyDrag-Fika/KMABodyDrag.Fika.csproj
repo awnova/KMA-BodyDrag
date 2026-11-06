@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Build-only, never shipped: everything of the mod that names a Fika type (FikaNet, the packets, the observed-player pose
+       patch). Embedded in KMABodyDrag.dll as a resource and served from it only when Fika is installed (FikaBridge.Init), so
+       KMABodyDrag.dll references no Fika type and all of its types load on base SPT. KMABodyDrag.dll calls into this one
+       directly; this one does not reference it (no cycle) and calls back through delegates (see FikaNet). -->
+  <PropertyGroup>
+    <AssemblyName>KMABodyDrag.Fika</AssemblyName>
+    <RootNamespace>KMABodyDrag</RootNamespace>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <Deterministic>true</Deterministic>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <SPTBaseDir Condition=" '$(SPTBaseDir)' == '' ">C:\SPT</SPTBaseDir>
+    <ManagedDir>$(SPTBaseDir)\EscapeFromTarkov_Data\Managed\</ManagedDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony" HintPath="$(SPTBaseDir)\BepInEx\core\0Harmony.dll" Private="false" />
+    <Reference Include="BepInEx" HintPath="$(SPTBaseDir)\BepInEx\core\BepInEx.dll" Private="false" />
+    <Reference Include="spt-reflection" HintPath="$(SPTBaseDir)\BepInEx\plugins\spt\spt-reflection.dll" Private="false" />
+    <Reference Include="Fika.Core" HintPath="$(SPTBaseDir)\BepInEx\plugins\Fika\Fika.Core.dll" Private="false" />
+    <Reference Include="Assembly-CSharp" HintPath="$(ManagedDir)Assembly-CSharp.dll" Private="false" />
+    <Reference Include="Comfort" HintPath="$(ManagedDir)Comfort.dll" Private="false" />
+    <Reference Include="ItemComponent.Types" HintPath="$(ManagedDir)ItemComponent.Types.dll" Private="false" />
+    <Reference Include="ItemTemplate.Types" HintPath="$(ManagedDir)ItemTemplate.Types.dll" Private="false" />
+    <Reference Include="UnityEngine" HintPath="$(ManagedDir)UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="$(ManagedDir)UnityEngine.CoreModule.dll" Private="false" />
+  </ItemGroup>
+</Project>
